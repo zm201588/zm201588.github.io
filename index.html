@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>囍·婚嫁影像珍藏馆 | 永恒瞬间</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(145deg, #fef3e2 0%, #ffe6ce 100%);
+            font-family: 'Segoe UI', '华文楷书', 'Microsoft YaHei', serif;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+        .wedding-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 245, 235, 0.85);
+            border-radius: 64px 48px 64px 48px;
+            box-shadow: 0 25px 45px rgba(180, 60, 50, 0.25);
+            padding: 2rem;
+        }
+        .header-bless {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .double-happiness {
+            font-size: 3.8rem;
+            font-weight: bold;
+            color: #d83a2b;
+            text-shadow: 3px 3px 0 #ffbf86;
+            letter-spacing: 12px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #b4512c;
+            background: #fff0e0;
+            display: inline-block;
+            padding: 0.4rem 1.8rem;
+            border-radius: 60px;
+        }
+        .gallery-title {
+            font-size: 1.7rem;
+            font-weight: bold;
+            color: #cd5332;
+            border-left: 8px solid #f2994a;
+            padding-left: 20px;
+            margin: 25px 0 20px;
+        }
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .media-card {
+            background: #fffcf7;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 15px 25px rgba(110, 40, 10, 0.12);
+            transition: all 0.25s ease;
+            border: 1px solid #ffdec2;
+        }
+        .media-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 22px 32px rgba(190, 70, 35, 0.18);
+        }
+        .media-preview {
+            width: 100%;
+            background: #2c1810;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+        }
+        .media-preview video,
+        .media-preview img {
+            width: 100%;
+            object-fit: contain;
+            max-height: 250px;
+        }
+        .file-info {
+            padding: 16px 18px 20px;
+        }
+        .file-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ac3e21;
+            margin-bottom: 8px;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #d8966a;
+            font-size: 1.2rem;
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #ca8a63;
+        }
+        @media (max-width: 680px) {
+            .wedding-container {
+                padding: 1rem;
+            }
+            .file-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wedding-container">
+    <div class="header-bless">
+        <div class="double-happiness">囍 囍</div>
+        <div class="subtitle">
+            <i class="fas fa-heart"></i> 良辰吉日 · 珍藏每一帧真情 <i class="fas fa-heart"></i>
+        </div>
+        <p style="margin-top: 10px; color:#c56c47;">✨ 我们的幸福瞬间 ✨</p>
+    </div>
+
+    <div class="gallery-title">
+        <i class="fas fa-camera-retro"></i> 幸福影像集
+        <span id="countBadge" style="font-size:0.8rem; background:#fbdbc2; padding:4px 12px; border-radius:30px;">加载中...</span>
+    </div>
+
+    <div id="mediaListContainer" class="file-grid">
+        <div class="loading"><i class="fas fa-spinner fa-pulse"></i> 加载幸福瞬间...</div>
+    </div>
+
+    <footer>
+        🌸 我们的爱情故事 · 永存于心 🌸
+    </footer>
+</div>
+
+<script>
+    // 媒体数据文件地址（修改成你自己OSS上media.json的完整URL）
+        const MEDIA_DATA_URL = 'https://myweddingsite.oss-ap-northeast-1.aliyuncs.com/media.json';
+
+    async function loadMedia() {
+        const container = document.getElementById('mediaListContainer');
+        const countBadge = document.getElementById('countBadge');
+
+        try {
+            const response = await fetch(MEDIA_DATA_URL);
+            if (!response.ok) throw new Error('加载失败');
+            const data = await response.json();
+
+            let allItems = [];
+            if (data.images) {
+                allItems.push(...data.images.map(img => ({ ...img, type: 'image' })));
+            }
+            if (data.videos) {
+                allItems.push(...data.videos.map(vid => ({ ...vid, type: 'video' })));
+            }
+
+            countBadge.innerText = allItems.length + '个瞬间';
+
+            if (allItems.length === 0) {
+                container.innerHTML = '<div class="loading">❤️ 暂无影像，等待更新 ❤️</div>';
+                return;
+            }
+
+            let html = '';
+            for (let item of allItems) {
+                if (item.type === 'video') {
+                    html += `
+                        <div class="media-card">
+                            <div class="media-preview">
+                                <video controls preload="metadata">
+                                    <source src="${item.url}" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-title">🎬 ${escapeHtml(item.title)}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="media-card">
+                            <div class="media-preview">
+                                <img src="${item.url}" alt="${escapeHtml(item.title)}" loading="lazy">
+                            </div>
+                            <div class="file-info">
+                                <div class="file-title">📷 ${escapeHtml(item.title)}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('加载失败:', error);
+            container.innerHTML = '<div class="loading">📸 影像加载失败，请稍后再试</div>';
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    loadMedia();
+</script>
+</body>
+</html>
