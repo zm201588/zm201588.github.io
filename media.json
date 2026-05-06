@@ -1,11 +1,11 @@
 {
   "videos": [
     {
-      "url": "https://my-wedding-site.oss-cn-shanghai.aliyuncs.com/videos/0502婚礼接亲快剪.mp4",
+      "url": "https://my-wedding-site.oss-accelerate.aliyuncs.com/videos/0502婚礼接亲快剪.mp4",
       "title": "接亲快剪"
     },
     {
-      "url": "https://my-wedding-site.oss-cn-shanghai.aliyuncs.com/videos/0502户外婚礼全程.mp4",
+      "url": "https://my-wedding-site.oss-accelerate.aliyuncs.com/videos/0502户外婚礼全程.mp4",
       "title": "婚礼仪式"
     }
   ],
